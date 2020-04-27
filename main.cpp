@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
 				secure_clear(random_buffer, sizeof(random_buffer));
 				int result = gen_random(random_buffer, sizeof(random_buffer));
 				if (0 != result) {
+					secure_clear(alpha, sizeof(alpha));
 					fprintf(stderr, "Failed to generate random buffer: %d\n"
 							, result
 					);

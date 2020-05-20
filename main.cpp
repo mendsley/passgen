@@ -54,6 +54,17 @@
 int main(int argc, char* argv[]) {
 
 	uint32_t password_len = 32;
+	bool alnum_only = false;
+
+	// parse command line arguments
+	for (int ii = 1; ii != argc; ++ii) {
+		if (0 == strcmp(argv[ii], "-alnum")) {
+			alnum_only = true;
+			memmove(argv[ii], argv[ii+1], sizeof(char*)*(argc-ii-1));
+			--ii;
+			--argc;
+		}
+	}
 
 	if (argc > 1) {
 		uint32_t  value;
@@ -89,6 +100,7 @@ int main(int argc, char* argv[]) {
 		const bool needs_alnum = false
 			|| (ii == 0 )
 			|| (ii == password_len-1)
+			|| alnum_only
 			;
 
 		uint32_t char_index = 0;

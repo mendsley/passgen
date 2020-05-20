@@ -45,6 +45,7 @@
 #	error Unknown platform, Need gen_random
 #endif
 
+#include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -85,6 +86,11 @@ int main(int argc, char* argv[]) {
 	char* alpha = new char[password_len+1u];
 	for (uint32_t ii = 0; ii != password_len; ++ii) {
 
+		const bool needs_alnum = false
+			|| (ii == 0 )
+			|| (ii == password_len-1)
+			;
+
 		uint32_t char_index = 0;
 		for (;;) {
 
@@ -107,11 +113,18 @@ int main(int argc, char* argv[]) {
 
 			uint8_t value = random_buffer[random_buffer_index];
 			++random_buffer_index;
-			if (value < RANGE) {
-				char_index = value % sizeof(CHARACTERS);
-				break;
+			if (value >= RANGE) {
+				continue;
 			}
-		 }
+
+			char_index = value % sizeof(CHARACTERS);
+
+			if (needs_alnum && !isalnum(CHARACTERS[char_index])) {
+				continue;
+			}
+
+			break;
+		}
 
 		alpha[ii] = CHARACTERS[char_index];
 	}

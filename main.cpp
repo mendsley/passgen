@@ -55,11 +55,17 @@ int main(int argc, char* argv[]) {
 
 	uint32_t password_len = 32;
 	bool alnum_only = false;
+	bool allow_ambiguous_chars = false;
 
 	// parse command line arguments
 	for (int ii = 1; ii != argc; ++ii) {
 		if (0 == strcmp(argv[ii], "-alnum")) {
 			alnum_only = true;
+			memmove(argv[ii], argv[ii+1], sizeof(char*)*(argc-ii-1));
+			--ii;
+			--argc;
+		} else if (0 == strcmp(argv[ii], "-ambiguous")) {
+			allow_ambiguous_chars = true;
 			memmove(argv[ii], argv[ii+1], sizeof(char*)*(argc-ii-1));
 			--ii;
 			--argc;
@@ -133,6 +139,24 @@ int main(int argc, char* argv[]) {
 
 			if (needs_alnum && !isalnum(CHARACTERS[char_index])) {
 				continue;
+			}
+
+			if (!allow_ambiguous_chars) {
+				bool is_ambiguous = false;
+				switch (CHARACTERS[char_index]) {
+					case 'l':
+					case '1':
+					case 'I':
+					case '|':
+					case 'O':
+					case '0':
+						is_ambiguous = true;
+						break;
+				}
+
+				if (is_ambiguous) {
+					continue;
+				}
 			}
 
 			break;

@@ -40,6 +40,17 @@
 
 		return 0;
 	}
+#elif defined(__APPLE__)
+#	define __STDC_WANT_LIB_EXT1__ 1
+#	include <stdint.h>
+#	include <string.h>
+#	include <strings.h>
+#	include <stdlib.h>
+#	define secure_clear(dest, size) memset_s((void*)(dest), (size), 0, (size))
+	static int gen_random(void* dest, uint32_t size) {
+		arc4random_buf(dest, size);
+		return 0;
+	}
 #else
 #	error Unknown platform. Need secure_clear
 #	error Unknown platform, Need gen_random

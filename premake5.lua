@@ -8,6 +8,7 @@ workspace "passgen"
 	debugformat "c7"
 	characterset "Unicode"
 
+	cppdialect "C++17"
 	flags "FatalWarnings"
 
 	filter "Release"

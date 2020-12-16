@@ -67,6 +67,7 @@ int main(int argc, char* argv[]) {
 	uint32_t password_len = 32;
 	bool alnum_only = false;
 	bool allow_ambiguous_chars = false;
+	bool allow_all_special = true;
 
 	// parse command line arguments
 	for (int ii = 1; ii != argc; ++ii) {
@@ -77,6 +78,12 @@ int main(int argc, char* argv[]) {
 			--argc;
 		} else if (0 == strcmp(argv[ii], "-ambiguous")) {
 			allow_ambiguous_chars = true;
+			memmove(argv[ii], argv[ii+1], sizeof(char*)*(argc-ii-1));
+			--ii;
+			--argc;
+		}
+		else if (0 == strcmp(argv[ii], "-smallspecial")) {
+			allow_all_special = false;
 			memmove(argv[ii], argv[ii+1], sizeof(char*)*(argc-ii-1));
 			--ii;
 			--argc;
@@ -166,6 +173,30 @@ int main(int argc, char* argv[]) {
 				}
 
 				if (is_ambiguous) {
+					continue;
+				}
+			}
+
+			if (!allow_all_special) {
+				bool is_ext_special = false;
+				switch (CHARACTERS[char_index]) {
+					case '~':
+					case ';':
+					case '<':
+					case '>':
+					case '"':
+					case '^':
+					case '[':
+					case ']':
+					case '{':
+					case '}':
+					case '(':
+					case ')':
+						is_ext_special = true;
+						break;
+				}
+
+				if (is_ext_special) {
 					continue;
 				}
 			}

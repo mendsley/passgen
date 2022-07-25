@@ -60,6 +60,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int main(int argc, char* argv[]) {
@@ -67,6 +68,7 @@ int main(int argc, char* argv[]) {
 	uint32_t password_len = 32;
 	bool alnum_only = false;
 	bool allow_ambiguous_chars = false;
+	char* characters_to_remove = nullptr;
 
 	// parse command line arguments
 	for (int ii = 1; ii != argc; ++ii) {
@@ -80,6 +82,17 @@ int main(int argc, char* argv[]) {
 			memmove(argv[ii], argv[ii+1], sizeof(char*)*(argc-ii-1));
 			--ii;
 			--argc;
+		} else if (0 == strcmp(argv[ii], "-rm")) {
+			if (ii == argc-1) {
+				fprintf(stderr, "-rm requires an argument for characters to exclude\n");
+				return -1;
+			}
+			size_t num_of_characters_to_remove = strlen(argv[ii+1]);
+			characters_to_remove = static_cast<char*>(calloc(num_of_characters_to_remove + 1, 1));
+			memcpy(characters_to_remove, argv[ii+1], num_of_characters_to_remove);
+			memmove(argv[ii], argv[ii+2], sizeof(char*)*(argc-ii-2));
+			ii -= 2;
+			argc -= 2;
 		}
 	}
 
@@ -150,6 +163,10 @@ int main(int argc, char* argv[]) {
 
 			if (needs_alnum && !isalnum(CHARACTERS[char_index])) {
 				continue;
+			} else if (nullptr != characters_to_remove) {
+				if (nullptr != strchr(characters_to_remove, CHARACTERS[char_index])) {
+					continue;
+				}
 			}
 
 			if (!allow_ambiguous_chars) {

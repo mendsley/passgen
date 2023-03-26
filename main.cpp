@@ -72,6 +72,7 @@ int main(int argc, char* argv[]) {
 	bool alnum_only = false;
 	bool allow_ambiguous_chars = false;
 	char* characters_to_remove = nullptr;
+	char* custom_special_characters = nullptr;
 
 	// parse command line arguments
 	for (int ii = 1; ii != argc; ++ii) {
@@ -93,6 +94,17 @@ int main(int argc, char* argv[]) {
 			size_t num_of_characters_to_remove = strlen(argv[ii+1]);
 			characters_to_remove = static_cast<char*>(calloc(num_of_characters_to_remove + 1, 1));
 			memcpy(characters_to_remove, argv[ii+1], num_of_characters_to_remove);
+			memmove(argv[ii], argv[ii+2], sizeof(char*)*(argc-ii-2));
+			ii -= 2;
+			argc -= 2;
+		} else if (0 == strcmp(argv[ii], "-only")) {
+			if (ii == argc-1) {
+				fprintf(stderr, "-rm requires an argument for characters to exclude\n");
+				return -1;
+			}
+			size_t num_of_characters = strlen(argv[ii+1]);
+			custom_special_characters = static_cast<char*>(calloc(num_of_characters + 1, 1));
+			memcpy(custom_special_characters, argv[ii+1], num_of_characters);
 			memmove(argv[ii], argv[ii+2], sizeof(char*)*(argc-ii-2));
 			ii -= 2;
 			argc -= 2;
@@ -136,7 +148,11 @@ int main(int argc, char* argv[]) {
 	available_characters.reserve(sizeof(ALNUM) + sizeof(SPECIAL));
 	available_characters.insert(available_characters.end(), ALNUM, ALNUM + sizeof(ALNUM));
 	if (!alnum_only) {
-		available_characters.insert(available_characters.end(), SPECIAL, SPECIAL + sizeof(SPECIAL));
+		if (custom_special_characters) {
+			available_characters.insert(available_characters.end(), custom_special_characters, custom_special_characters + strlen(custom_special_characters));
+		} else {
+			available_characters.insert(available_characters.end(), SPECIAL, SPECIAL + sizeof(SPECIAL));
+		}
 	}
 
 	if (!allow_ambiguous_chars) {
